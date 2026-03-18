@@ -1,27 +1,31 @@
-import type { AnalyticsData, IDoctorsResponse, MLResult, PredictInput, PredictionAPIResponse, PredictionHistoryResponse, PredictionRecord, RiskLevel } from "../types/auth.prediction";
 import axiosClient from "./axiosClient";
+import type {
+  PredictInput,
+  PredictionAPIResponse,
+  IDoctorsResponse,
+  PredictionHistoryResponse,
+  AnalyticsData,
+} from "../types/auth.prediction";
 
-// POST /api/v1/predictions
-export const runPredictionApi = async (
-  input: PredictInput
-): Promise<{ prediction: PredictionRecord; mlResponse: MLResult }> => {
+// POST /prediction — ML model চালাও
+export const runPredictionApi = async (input: PredictInput) => {
   const res = await axiosClient.post<PredictionAPIResponse>("/prediction", input);
+  // res.data.data = { prediction (DB record), mlResponse (ML result) }
   return res.data.data;
 };
 
-// GET /api/v1/prediction/doctors?region=0&risk_level=Low Risk&limit=5
 export const getDoctorsApi = async (
   region: number,
-  risk_level: RiskLevel,
+  risk_level: string,
   limit = 5
 ): Promise<IDoctorsResponse> => {
-  const res = await axiosClient.get<IDoctorsResponse>("/prediction/doctors", {
+  const res = await axiosClient.get<{ success: boolean; data: IDoctorsResponse }>("/prediction/doctors", {
     params: { region, risk_level, limit },
   });
-  return res.data;
+  return res.data.data;
 };
 
-// GET /api/v1/predictions/history?page=1&limit=10
+// GET /prediction/history?page=1&limit=10
 export const getMyHistoryApi = async (
   page = 1,
   limit = 10
@@ -33,7 +37,7 @@ export const getMyHistoryApi = async (
   return res.data.data;
 };
 
-// GET /api/v1/prediction/analytics
+// GET /prediction/analytics
 export const getMyAnalyticsApi = async (): Promise<AnalyticsData> => {
   const res = await axiosClient.get<{ success: boolean; data: AnalyticsData }>(
     "/prediction/analytics"
@@ -41,7 +45,7 @@ export const getMyAnalyticsApi = async (): Promise<AnalyticsData> => {
   return res.data.data;
 };
 
-// GET /api/v1/prediction/regions
+// GET /prediction/regions
 export const getRegionsApi = async (): Promise<Record<string, string>> => {
   const res = await axiosClient.get<{
     success: boolean;

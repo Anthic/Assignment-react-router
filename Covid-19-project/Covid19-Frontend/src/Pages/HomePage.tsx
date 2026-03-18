@@ -1,7 +1,9 @@
 
+import { useNavigate } from "react-router-dom";
 import video from "../assets/video/Cinematic_Medical_Horror_Motion_Graphics.webm";
 
 export default function HomePage() {
+  const navigate = useNavigate();
   // const CLOUDINARY_EMBED_URL =
   //   "https://player.cloudinary.com/embed/?cloud_name=dgczshemc&public_id=Cinematic_Medical_Horror_Motion_Graphics_uhjpji&autoplay=true&loop=true&muted=true&controls=false&background=true&quality=auto";
 
@@ -25,10 +27,16 @@ export default function HomePage() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
-          <button className="flex-1 px-6 py-4 rounded-full bg-white text-slate-900 font-bold text-base hover:bg-slate-100 transition-all duration-300 hover:scale-105 active:scale-95 shadow-2xl">
+          <button 
+            onClick={() => navigate("/prediction")}
+            className="flex-1 px-6 py-4 rounded-full bg-white text-slate-900 font-bold text-base hover:bg-slate-100 transition-all duration-300 hover:scale-105 active:scale-95 shadow-2xl"
+          >
             Prediction
           </button>
-          <button className="flex-1 px-6 py-4 rounded-full bg-transparent border border-white/60 text-white font-semibold text-base backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
+          <button 
+            onClick={() => navigate("/history")}
+            className="flex-1 px-6 py-4 rounded-full bg-transparent border border-white/60 text-white font-semibold text-base backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95"
+          >
             History
           </button>
         </div>
@@ -40,28 +48,23 @@ export default function HomePage() {
       {/* Video — takes 55% width, bleeds left with -ml so it overlaps behind text a little */}
       <div className="absolute md:relative inset-0 md:inset-auto w-full md:w-[55%] min-h-screen overflow-hidden z-0 md:-ml-[0%]">
 
-        {/* Cloudinary iframe */}
+        {/* Video Player */}
         <div className="absolute inset-0 pointer-events-none">
-          <iframe
+          <video
             src={video}
-            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-            allowFullScreen
-            frameBorder="0"
-            title="background-video"
-            className="
-              absolute top-1/2 left-1/2
-              -translate-x-1/2 -translate-y-1/2
-              w-[177.78vh] h-[100vh]
-              min-w-full min-h-full
-            "
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full object-cover w-auto h-auto"
           />
         </div>
 
-        {/* Halka black overlay */}
-        <div className="absolute inset-0 bg-black/30 z-10" />
+        {/* Strong black overlay to improve text readability */}
+        <div className="absolute inset-0 bg-black/40 z-10" />
 
         {/* Strong left gradient — blends video seamlessly into text side */}
-        <div className="absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-black via-black/80 to-transparent z-20" />
+        <div className="absolute inset-y-0 left-0 w-48 bg-linear-to-r from-black via-black/80 to-transparent z-20" />
       </div>
 
     </div>

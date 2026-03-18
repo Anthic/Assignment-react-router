@@ -5,7 +5,6 @@ import type { IUser } from "../types/auth.types";
 interface AuthState {
     user: IUser | null;
     isLoggedIn: boolean;
-
     // Actions
     setAuth: (user: IUser) => void;
     clearAuth: () => void;
@@ -18,7 +17,7 @@ export const useAuthStore = create<AuthState>()(
             isLoggedIn: false,
 
             setAuth: (user) => {
-                set({ user, isLoggedIn: true });
+                set({ user, isLoggedIn: true,  });
             },
 
             clearAuth: () => {
@@ -26,7 +25,7 @@ export const useAuthStore = create<AuthState>()(
             },
         }),
         {
-            name: "covid19-auth", // Zustand automatically localStorage use করবে state persistence এর জন্য
+            name: "covid19-auth", 
         }
     )
 );

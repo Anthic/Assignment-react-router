@@ -4,6 +4,9 @@ import HomePage from "../Pages/HomePage";
 import PredictionPage from "../Pages/PredictionPage";
 import ContactPage from "../Pages/ContactPage";
 import LoginPage from "../Pages/LoginPage";
+import { HistoryPage } from "../Pages/History";
+import Protected from "./Protected";
+
 
 export const router = createBrowserRouter([
   {
@@ -16,7 +19,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "/prediction",
-        element: <PredictionPage />,
+        element: (
+          <Protected>
+            <PredictionPage />
+          </Protected>
+        ),
       },
       {
         path: "/contact",
@@ -25,6 +32,13 @@ export const router = createBrowserRouter([
       {
         path: "/login",
         element: <LoginPage />,
+      }, {
+        path: "/history",
+        element: (
+          <Protected>
+            <HistoryPage />
+          </Protected>
+        ),
       },
     ],
   },

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -130,7 +131,7 @@ export default function Navbar() {
             <div key={link.name} className="overflow-hidden">
               <Link
                 to={link.path}
-                // @ts-ignore
+                //@ts-ignore
                 ref={(el) => (menuLinksRef.current[i] = el)}
                 className="block text-4xl md:text-7xl font-bold uppercase tracking-widest text-outline transition-all duration-300 hover:-translate-y-2 hover:scale-105 inline-block"
               >

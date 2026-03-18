@@ -1,26 +1,31 @@
-import type { ILoginInput, IRegisterInput, IUser } from "../types/auth.types";
+
+import type { ILoginInput, IRegisterInput, IUser, IAuthResponse } from "../types/auth.types";
 import axiosClient from "./axiosClient";
-import type { IAuthResponse } from "../types/auth.types";
 
+// Login
 export const loginApi = async (data: ILoginInput): Promise<IAuthResponse> => {
-    const res = await axiosClient.post<IAuthResponse>("/auth/login", data);
-    return res.data;
+  const res = await axiosClient.post<IAuthResponse>("/auth/login", data);
+  return res.data;
 };
 
-// POST /auth/register
+// Register
 export const registerApi = async (data: IRegisterInput): Promise<IAuthResponse> => {
-    const res = await axiosClient.post<IAuthResponse>("/auth/register", data);
-    return res.data;
+  const res = await axiosClient.post<IAuthResponse>("/auth/register", data);
+  return res.data;
 };
 
-// POST /auth/logout 
+// Logout
 export const logoutApi = async (): Promise<void> => {
-    const res = await axiosClient.post("/auth/logout");
-    return res.data;
+  await axiosClient.post("/auth/logout");
 };
 
-// GET /auth/me — current user
+// Get current user
 export const getMeApi = async (): Promise<IUser> => {
-    const res = await axiosClient.get<{ success: boolean; data: IUser }>("/auth/me");
-    return res.data.data;
+  const res = await axiosClient.get<{ success: boolean; data: IUser }>("/auth/me");
+  return res.data.data;
+};
+
+// Refresh token handled by axios interceptor
+export const refreshTokenApi = async (): Promise<void> => {
+  await axiosClient.post("/auth/refresh-token");
 };

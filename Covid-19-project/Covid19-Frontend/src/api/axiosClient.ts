@@ -3,38 +3,29 @@ import { useAuthStore } from "../store/auth.store";
 
 
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL, // backend base URL
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true, // cookie auto-send
   headers: { "Content-Type": "application/json" },
-  timeout: 15000, // 15 sec
+  timeout: 15000,
 });
 
-// Request interceptor (optional, if you need auth header)
-// Since backend uses HttpOnly cookie, Authorization header is optional
+// Request interceptor – simple, no unused variable
 axiosClient.interceptors.request.use(
-  (config) => {
-    const { isLoggedIn } = useAuthStore.getState();
-    // could add extra headers if needed
-    return config;
-  },
+  (config) => config, // cookie auto-send → no need for isLoggedIn
   (error) => Promise.reject(error)
 );
 
-// Response interceptor
+// Response interceptor – handle refresh
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // 401 unauthorized → try refresh token once
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry
-    ) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         // call refresh endpoint
-        await axiosClient.post("/auth/refresh");
+        await axiosClient.post("/auth/refresh-token");
         // retry original request
         return axiosClient(originalRequest);
       } catch (_err) {
