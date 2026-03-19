@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import gsap from "gsap";
@@ -18,32 +18,36 @@ export default function Navbar() {
   const menuOverlayRef = useRef<HTMLDivElement>(null);
   const menuLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const magneticButtonRef = useRef<HTMLButtonElement>(null);
+  const tl = useRef<gsap.core.Timeline>(null);
 
-  // Close menu on route change
+  // Close menu on route change — directly reverse the timeline, no setState cascade
   useEffect(() => {
-    if (isOpen) {
-      toggleMenu();
-    }
+    if (!isOpen) return;
+    tl.current?.reverse().then(() => setIsOpen(false));
   }, [pathname]);
 
-  // Magnetic button effect using GSAP quickTo
+  // Magnetic button effect
   useGSAP(() => {
     if (!magneticButtonRef.current) return;
-    
+
     const magneticObj = magneticButtonRef.current;
-    const xTo = gsap.quickTo(magneticObj, "x", { duration: 1, ease: "elastic.out(1, 0.3)" });
-    const yTo = gsap.quickTo(magneticObj, "y", { duration: 1, ease: "elastic.out(1, 0.3)" });
+    const xTo = gsap.quickTo(magneticObj, "x", {
+      duration: 1,
+      ease: "elastic.out(1, 0.3)",
+    });
+    const yTo = gsap.quickTo(magneticObj, "y", {
+      duration: 1,
+      ease: "elastic.out(1, 0.3)",
+    });
 
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
       const { left, top, width, height } = magneticObj.getBoundingClientRect();
       const centerX = left + width / 2;
       const centerY = top + height / 2;
-      
       const distanceX = clientX - centerX;
       const distanceY = clientY - centerY;
-      
-      // Only magnetize when cursor is near
+
       if (Math.abs(distanceX) < 80 && Math.abs(distanceY) < 80) {
         xTo(distanceX * 0.4);
         yTo(distanceY * 0.4);
@@ -63,52 +67,54 @@ export default function Navbar() {
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      if (magneticObj) {
-        magneticObj.removeEventListener("mouseleave", handleMouseLeave);
-      }
+      magneticObj.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
 
-  const tl = useRef<gsap.core.Timeline>(null);
+  // Setup menu timeline
+  useGSAP(
+    () => {
+      gsap.set(menuOverlayRef.current, { yPercent: -100 });
 
-  // Setup the menu timeline
-  useGSAP(() => {
-    gsap.set(menuOverlayRef.current, { yPercent: -100 });
-    
-    tl.current = gsap.timeline({ paused: true })
-      .to(menuOverlayRef.current, {
-        yPercent: 0,
-        duration: 0.8,
-        ease: "power4.inOut"
-      })
-      .fromTo(
-        menuLinksRef.current,
-        { y: 100, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 0.6, 
-          stagger: 0.1, 
-          ease: "back.out(1.7)" 
-        },
-        "-=0.3" 
-      );
-  }, { scope: menuOverlayRef });
+      tl.current = gsap
+        .timeline({ paused: true })
+        .to(menuOverlayRef.current, {
+          yPercent: 0,
+          duration: 0.8,
+          ease: "power4.inOut",
+        })
+        .fromTo(
+          menuLinksRef.current,
+          { y: 100, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: "back.out(1.7)",
+          },
+          "-=0.3",
+        );
+    },
+    { scope: menuOverlayRef },
+  );
 
-  const toggleMenu = () => {
+  const toggleMenu = useCallback(() => {
     if (!isOpen) {
       setIsOpen(true);
       tl.current?.play();
     } else {
       tl.current?.reverse().then(() => setIsOpen(false));
     }
-  };
+  }, [isOpen]);
 
   return (
     <>
-      {/* Desktop Header */}
       <header className="fixed top-0 left-0 w-full z-40 px-6 py-6 md:px-12 flex justify-between items-center mix-blend-difference">
-        <Link to="/" className="text-2xl md:text-3xl font-bold tracking-tighter text-white z-50">
+        <Link
+          to="/"
+          className="text-2xl md:text-3xl font-bold tracking-tighter text-white z-50"
+        >
           &lt;Covid-19/&gt;
         </Link>
         <button
@@ -120,10 +126,9 @@ export default function Navbar() {
         </button>
       </header>
 
-      {/* Full-screen Overlay */}
       <div
         ref={menuOverlayRef}
-        className="fixed inset-0 z-30 bg-slate-900/80 backdrop-blur-2xl flex flex-col justify-center items-center h-screen w-full"
+        className="fixed inset-0 z-30 bg-slate-900/80 backdrop-blur-2xl flex-col justify-center items-center h-screen w-full"
         style={{ display: isOpen ? "flex" : "none" }}
       >
         <nav className="flex flex-col gap-6 md:gap-8 items-center text-center">
@@ -131,8 +136,9 @@ export default function Navbar() {
             <div key={link.name} className="overflow-hidden">
               <Link
                 to={link.path}
-                //@ts-ignore
-                ref={(el) => (menuLinksRef.current[i] = el)}
+                ref={(el: HTMLAnchorElement | null) => {
+                  menuLinksRef.current[i] = el;
+                }}
                 className="block text-4xl md:text-7xl font-bold uppercase tracking-widest text-outline transition-all duration-300 hover:-translate-y-2 hover:scale-105 inline-block"
               >
                 {link.name}
@@ -141,7 +147,6 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Optional background element for aesthetics */}
         <div className="absolute bottom-10 text-white/30 text-sm tracking-widest uppercase">
           Stay Safe. Stay Informed.
         </div>

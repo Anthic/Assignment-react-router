@@ -4,6 +4,12 @@ import { useMutation } from "@tanstack/react-query";
 import type { ILoginInput, IRegisterInput } from "../types/auth.types";
 import { loginApi, logoutApi, registerApi } from "../api/auth.api";
 
+// ─── useAuth ─────────────────────────────────────────────────────────────────
+export const useAuth = () => {
+  const { user, isLoggedIn, clearAuth, setAuth } = useAuthStore();
+  return { user, isLoggedIn, clearAuth, setAuth };
+};
+
 // ─── useLogin ─────────────────────────────────────────────────────────────────
 export const useLogin = () => {
   const { setAuth } = useAuthStore();
