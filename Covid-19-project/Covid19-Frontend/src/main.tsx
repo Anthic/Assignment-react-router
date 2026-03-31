@@ -19,10 +19,14 @@ const queryClient = new QueryClient({
     }
   }
 })
+import { ToastProvider } from './components/ui/Toast'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <ToastProvider>
+        <RouterProvider router={router} />
+      </ToastProvider>
     </QueryClientProvider>
   </StrictMode>,
 )

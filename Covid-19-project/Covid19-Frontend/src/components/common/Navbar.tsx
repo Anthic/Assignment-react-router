@@ -4,13 +4,9 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useAuth, useLogout } from "../../hooks/useAuth";
 
-const NAV_LINKS = [
-  { name: "Home", path: "/" },
-  { name: "Prediction", path: "/prediction" },
-  { name: "Contact Us", path: "/contact" },
-  { name: "Login", path: "/login" },
-];
+
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -108,6 +104,23 @@ export default function Navbar() {
     }
   }, [isOpen]);
 
+  const { isLoggedIn } = useAuth();
+  const logoutMutation = useLogout();
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+    toggleMenu();
+  };
+
+  const dynamicLinks = [
+    { name: "Home", path: "/" },
+    { name: "Prediction", path: "/prediction" },
+    { name: "Contact Us", path: "/contact" },
+    ...(isLoggedIn
+      ? [{ name: "History", path: "/history" }]
+      : [{ name: "Login", path: "/login" }]),
+  ];
+
   return (
     <>
       <header className="fixed top-0 left-0 w-full z-40 px-6 py-6 md:px-12 flex justify-between items-center mix-blend-difference">
@@ -132,7 +145,7 @@ export default function Navbar() {
         style={{ display: isOpen ? "flex" : "none" }}
       >
         <nav className="flex flex-col gap-6 md:gap-8 items-center text-center">
-          {NAV_LINKS.map((link, i) => (
+          {dynamicLinks.map((link, i) => (
             <div key={link.name} className="overflow-hidden">
               <Link
                 to={link.path}
@@ -145,6 +158,17 @@ export default function Navbar() {
               </Link>
             </div>
           ))}
+          {isLoggedIn && (
+            <div className="overflow-hidden mt-4">
+              <button
+                onClick={handleLogout}
+                disabled={logoutMutation.isPending}
+                className="block text-3xl md:text-5xl font-bold uppercase tracking-widest text-red-500/60 hover:text-red-500 transition-all duration-300 hover:scale-110 cursor-pointer"
+              >
+                {logoutMutation.isPending ? "Logging out..." : "Logout"}
+              </button>
+            </div>
+          )}
         </nav>
 
         <div className="absolute bottom-10 text-white/30 text-sm tracking-widest uppercase">

@@ -1,10 +1,20 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getDoctorsApi, getMyAnalyticsApi, getMyHistoryApi, runPredictionApi } from "../api/prediction.api";
+import { useToast } from "../components/ui/Toast";
 
-export const usePrediction = () =>
-    useMutation({
+export const usePrediction = () => {
+    const { showToast } = useToast();
+    return useMutation({
         mutationFn: runPredictionApi,
+        onSuccess: () => {
+            showToast("Risk assessment calculated successfully!", "success");
+        },
+        onError: (error: any) => {
+            const message = error.response?.data?.message || "Prediction failed. Please try again.";
+            showToast(message, "error");
+        }
     });
+};
 
 export const useDoctors = (
     region: number,
